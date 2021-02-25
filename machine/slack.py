@@ -82,9 +82,17 @@ class MessagingClient:
 
         return response['channel']['id']
 
+    @staticmethod
+    def open_conversations(user_ids):
+        response = response = Slack.get_instance().api_call(
+            'conversations.open',
+            users=','.join(user_ids)
+        )
+        return response['channel']['id']
+
     def send_dm(self, user, text):
         u = self.users.find(user)
-        dm_channel = self.open_im(u.id)
+        dm_channel = self.open_conversations([u.id])
 
         self.send(dm_channel, text)
 
@@ -95,7 +103,7 @@ class MessagingClient:
 
     def send_dm_webapi(self, user, text, attachments=None):
         u = self.users.find(user)
-        dm_channel = self.open_im(u.id)
+        dm_channel = self.open_conversations([u.id])
 
         return Slack.get_instance().api_call(
             'chat.postMessage',
